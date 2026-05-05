@@ -18,8 +18,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs \
-    && cp .env.example .env \
+RUN cp .env.example .env \
+    && mkdir -p bootstrap/cache storage/logs storage/framework/cache storage/framework/sessions storage/framework/views \
+    && chmod -R 775 bootstrap/cache storage \
+    && composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs \
     && chown -R www-data:www-data storage bootstrap/cache public/build
 
 RUN printf '#!/bin/bash\nset -e\nif [ -n "$PORT" ]; then\n  sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf\n  sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-enabled/000-default.conf\nfi\nphp artisan migrate --force\nphp artisan config:cache\nphp artisan route:cache\nphp artisan view:cache\nexec apache2-foreground\n' > /run.sh && chmod +x /run.sh
