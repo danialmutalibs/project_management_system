@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["php81", "php81Extensions.pdo_pgsql", "php81Extensions.pgsql", "php81Extensions.zip", "php81Extensions.gd", "php81Extensions.bcmath", "php81Extensions.intl", "php81Extensions.mbstring", "php81Extensions.exif", "php81Extensions.opcache", "composer", "nodejs_20", "npm-9_x"]
+nixPkgs = ["php81", "php81Extensions.pdo_pgsql", "php81Extensions.pgsql", "php81Extensions.zip", "php81Extensions.gd", "php81Extensions.bcmath", "php81Extensions.intl", "php81Extensions.mbstring", "php81Extensions.exif", "php81Extensions.opcache", "composer", "nodejs_18", "nodePackages.npm"]
 
 [phases.install]
 cmds = [
