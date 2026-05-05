@@ -1,4 +1,14 @@
+.env
+.git
 .github
+node_modules
+public/hot
+public/build
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+bootstrap/cache
 docs/
 github-contents/
 tests/
