@@ -24,7 +24,7 @@ RUN cp .env.example .env \
     && composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs \
     && chown -R www-data:www-data storage bootstrap/cache public/build
 
-RUN printf '#!/bin/bash\nphp artisan migrate --force || true\nphp artisan db:seed --force || true\nphp artisan config:cache || true\nphp artisan route:cache || true\nphp artisan view:cache || true\nexec php artisan serve --host=0.0.0.0 --port=${PORT:-8080}\n' > /run.sh && chmod +x /run.sh
+RUN printf '#!/bin/bash\nphp artisan migrate --force || true\nphp artisan config:cache || true\nphp artisan route:cache || true\nphp artisan view:cache || true\n(php artisan db:seed --force || true) &\nexec php artisan serve --host=0.0.0.0 --port=${PORT:-8080}\n' > /run.sh && chmod +x /run.sh
 
 EXPOSE 8080
 CMD ["/run.sh"]
