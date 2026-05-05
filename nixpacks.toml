@@ -2,10 +2,12 @@
 NIXPACKS_PHP_VERSION = "8.2"
 NIXPACKS_NODE_VERSION = "18"
 
+[phases.install]
+cmds = ["COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs"]
+
 [phases.build]
 cmds = [
     "cp .env.example .env",
-    "composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs",
     "npm ci",
     "npm run build"
 ]
