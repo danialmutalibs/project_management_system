@@ -1,19 +1,5 @@
-[phases.setup]
-nixPkgs = ["php81", "php81Extensions.pdo_pgsql", "php81Extensions.pgsql", "php81Extensions.zip", "php81Extensions.gd", "php81Extensions.bcmath", "php81Extensions.intl", "php81Extensions.mbstring", "php81Extensions.exif", "php81Extensions.opcache", "composer", "nodejs_18", "nodePackages.npm"]
-
-[phases.install]
-cmds = [
-    "composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs",
-    "npm ci",
-    "npm run build"
-]
-
 [phases.build]
-cmds = [
-    "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
-]
+cmds = ["cp .env.example .env"]
 
 [start]
-cmd = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
