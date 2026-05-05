@@ -1,27 +1,37 @@
-# syntax=docker/dockerfile:1
-
-#Deriving the latest base image
-FROM node:16.17.0-bullseye-slim
-
-# Any working directory can be chosen as per choice like '/' or '/home' etc
+# Stage 1: Build frontend assets
+FROM node:20-alpine AS frontend
 WORKDIR /app
-
-COPY .env.example .env
-
+COPY package*.json ./
+RUN npm ci
 COPY . .
+RUN npm run build
 
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends software-properties-common gnupg2 wget && \
-    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list && \
-    wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends php8.1 php8.1-curl php8.1-xml php8.1-zip php8.1-gd php8.1-mbstring php8.1-mysql && \
-    apt-get update -y && \
-    apt-get install -y composer && \
-    composer update && \
-    composer install && \
-    npm install && \
-    php artisan key:generate && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: PHP application
+FROM php:8.2-apache
 
-CMD [ "bash", "./run.sh"]
+RUN apt-get update && apt-get install -y \
+        libpq-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libicu-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql pgsql zip gd bcmath intl exif \
+    && a2enmod rewrite \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+COPY . .
+COPY --from=frontend /app/public/build ./public/build
+
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --ignore-platform-reqs \
+    && cp .env.example .env \
+    && chown -R www-data:www-data storage bootstrap/cache public/build
+
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
+
+EXPOSE 80
+CMD ["/run.sh"]
