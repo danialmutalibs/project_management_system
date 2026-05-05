@@ -1,0 +1,12 @@
+{
+  "resources/js/filament.js": {
+    "file": "assets/filament.e0e55e99.js",
+    "src": "resources/js/filament.js",
+    "isEntry": true
+  },
+  "resources/css/filament.scss": {
+    "file": "assets/filament.affbdd8e.css",
+    "src": "resources/css/filament.scss",
+    "isEntry": true
+  }
+}
