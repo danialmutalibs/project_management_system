@@ -33,7 +33,7 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-d
     && chown -R www-data:www-data storage bootstrap/cache public/build
 
 COPY run.sh /run.sh
-RUN chmod +x /run.sh
+RUN sed -i 's/\r$//' /run.sh && chmod +x /run.sh
 
 EXPOSE 80
 CMD ["/run.sh"]
