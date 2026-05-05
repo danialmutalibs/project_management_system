@@ -33,26 +33,31 @@ class AppServiceProvider extends ServiceProvider
         // Configure application
         $this->configureApp();
 
-        // Register custom Filament theme
+        // Force HTTPS before any URL generation
+        if (config('app.force_https')) {
+            URL::forceScheme('https');
+        }
+
+        // Register custom Filament theme and scripts inside serving() so they
+        // run after TrustProxies middleware has resolved the request scheme.
         Filament::serving(function () {
             Filament::registerTheme(
                 app(Vite::class)('resources/css/filament.scss'),
             );
+
+            try {
+                Filament::registerScripts([
+                    app(Vite::class)('resources/js/filament.js'),
+                ]);
+            } catch (\Exception $e) {
+                // Manifest not built yet!
+            }
         });
 
         // Register tippy styles
         Filament::registerStyles([
             'https://unpkg.com/tippy.js@6/dist/tippy.css',
         ]);
-
-        // Register scripts
-        try {
-            Filament::registerScripts([
-                app(Vite::class)('resources/js/filament.js'),
-            ]);
-        } catch (\Exception $e) {
-            // Manifest not built yet!
-        }
 
         // Add custom meta (favicon)
         Filament::pushMeta([
@@ -68,11 +73,6 @@ class AppServiceProvider extends ServiceProvider
             __('Security'),
             __('Settings'),
         ]);
-
-        // Force HTTPS over HTTP
-        if (env('APP_FORCE_HTTPS') ?? false) {
-            URL::forceScheme('https');
-        }
     }
 
     private function configureApp(): void
