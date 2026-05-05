@@ -18,7 +18,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, pdo, pdo_sqlite, sqlite3
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3, iconv, gd, xml, zip, bcmath, curl, exif, openssl
           coverage: none
 
       - name: Cache Composer dependencies
